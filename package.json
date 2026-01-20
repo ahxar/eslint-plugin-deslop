@@ -1,0 +1,37 @@
+{
+  "name": "eslint-plugin-deslop",
+  "version": "0.1.0",
+  "description": "ESLint plugin to detect and remove AI-generated code slop",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "ai",
+    "slop",
+    "code-quality"
+  ],
+  "author": "Ahmad Safar <ahmadsafar88@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahxar/eslint-plugin-deslop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ahxar/eslint-plugin-deslop/issues"
+  },
+  "homepage": "https://github.com/ahxar/eslint-plugin-deslop#readme",
+  "peerDependencies": {
+    "eslint": ">=8.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
