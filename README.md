@@ -10,6 +10,14 @@ AI-generated code often includes patterns that human developers wouldn't write:
 
 This plugin focuses on unique AI-slop patterns not covered by other ESLint plugins.
 
+## Features
+
+- 🎯 **2 working rules** that catch common AI-generated patterns
+- 🔧 **Auto-fixable** - Use `eslint --fix` to automatically remove slop
+- ⚙️ **Configurable** - Customize thresholds and patterns to match your needs
+- ⚡ **Zero dependencies** - Pure ESLint plugin
+- 🎨 **Recommended config** - Get started quickly with sensible defaults
+
 ## Installation
 
 ```bash
@@ -146,14 +154,6 @@ function getUserName() {}
 - `this function`, `this method`, `this will`
 - `constructor for`, `getter for`, `setter for`
 - `returns the/a/an`, `checks if`, `sets the`, `gets the`
-
-## Features
-
-- 🎯 **2 working rules** that catch common AI-generated patterns
-- 🔧 **Auto-fixable** - Use `eslint --fix` to automatically remove slop
-- ⚙️ **Configurable** - Customize thresholds and patterns to match your needs
-- ⚡ **Zero dependencies** - Pure ESLint plugin
-- 🎨 **Recommended config** - Get started quickly with sensible defaults
 
 ## License
 
