@@ -42,6 +42,22 @@ ruleTester.run('no-obvious-comments', rule, {
         const name = user.name
       `,
     },
+    // Test checkVariableNames: false option - should not flag variable name matches
+    {
+      code: `
+        // Setting up the counter variable
+        let counter = 0
+      `,
+      options: [{ checkVariableNames: false }],
+    },
+    // Test customPatterns option
+    {
+      code: `
+        // Custom pattern that should not match
+        const result = calculate()
+      `,
+      options: [{ customPatterns: ['^perform\\s+action'] }],
+    },
   ],
 
   invalid: [
@@ -175,6 +191,29 @@ ruleTester.run('no-obvious-comments', rule, {
       errors: [{ messageId: 'obviousComment' }],
       output: `
         const items = []
+      `,
+    },
+    // Test customPatterns option - should flag custom pattern
+    {
+      code: `
+        // Perform action on data
+        const result = doSomething()
+      `,
+      options: [{ customPatterns: ['^perform\\s+action'] }],
+      errors: [{ messageId: 'obviousComment' }],
+      output: `
+        const result = doSomething()
+      `,
+    },
+    {
+      code: `
+        // Execute the task
+        runTask()
+      `,
+      options: [{ customPatterns: ['^execute\\s+(the|a)'] }],
+      errors: [{ messageId: 'obviousComment' }],
+      output: `
+        runTask()
       `,
     },
   ],

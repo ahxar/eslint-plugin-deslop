@@ -45,9 +45,7 @@ ruleTester.run('no-excessive-comments', rule, {
         }
       `,
     },
-  ],
-
-  invalid: [
+    // Low comment density (<=40%) - should NOT be flagged
     {
       code: `
         function calculateTotal() {
@@ -56,14 +54,33 @@ ruleTester.run('no-excessive-comments', rule, {
           return total
         }
       `,
-      errors: [{ messageId: 'excessiveComment' }],
-      output: `
-        function calculateTotal() {
-          const total = price * quantity
-          return total
+    },
+    {
+      code: `
+        function process() {
+          // Important note about edge case
+          const result = doSomething()
+          const modified = transform(result)
+          return modified
         }
       `,
     },
+    // Test with custom maxDensity option - higher threshold allows more comments
+    {
+      code: `
+        function processUser(user) {
+          // Get user name
+          const name = user.name
+          // Return the name
+          return name
+        }
+      `,
+      options: [{ maxDensity: 0.6 }],
+    },
+  ],
+
+  invalid: [
+    // High comment density (>40%) - should be flagged
     {
       code: `
         function processUser(user) {
@@ -133,6 +150,56 @@ ruleTester.run('no-excessive-comments', rule, {
           const data = []
           data.push(1)
           return data
+        }
+      `,
+    },
+    {
+      code: `
+        function example() {
+          // Comment 1
+          const a = 1
+          // Comment 2
+          const b = 2
+          // Comment 3
+          return a + b
+        }
+      `,
+      errors: [
+        { messageId: 'excessiveComment' },
+        { messageId: 'excessiveComment' },
+        { messageId: 'excessiveComment' },
+      ],
+      output: `
+        function example() {
+          const a = 1
+          const b = 2
+          return a + b
+        }
+      `,
+    },
+    // Test with custom maxDensity option - lower threshold flags more comments
+    {
+      code: `
+        function example() {
+          // Comment 1
+          const a = 1
+          // Comment 2
+          const b = 2
+          // Comment 3
+          return a + b
+        }
+      `,
+      options: [{ maxDensity: 0.3 }],
+      errors: [
+        { messageId: 'excessiveComment' },
+        { messageId: 'excessiveComment' },
+        { messageId: 'excessiveComment' },
+      ],
+      output: `
+        function example() {
+          const a = 1
+          const b = 2
+          return a + b
         }
       `,
     },
