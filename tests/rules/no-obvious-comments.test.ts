@@ -4,8 +4,8 @@ import rule from '../../lib/rules/no-obvious-comments.js'
 const ruleTester = new RuleTester({
   languageOptions: {
     ecmaVersion: 2022,
-    sourceType: 'module'
-  }
+    sourceType: 'module',
+  },
 })
 
 ruleTester.run('no-obvious-comments', rule, {

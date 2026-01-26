@@ -1,9 +1,14 @@
-export default {
+import type { Rule } from 'eslint'
+
+interface Options {
+  maxDensity?: number
+}
+
+const rule: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
       description: 'disallow excessive comment density inside function bodies',
-      category: 'Best Practices',
       recommended: false,
     },
     fixable: 'code',
@@ -26,20 +31,29 @@ export default {
     },
   },
   create(context) {
-    const options = context.options[0] || {}
+    const options = (context.options[0] || {}) as Options
     const maxDensity = options.maxDensity ?? 0.4
+
     /**
      * Checks if comment density in the function is excessive.
      * @param node node to check
      */
-    function checkComments(node) {
+    function checkComments(node: {
+      body: { range?: [number, number]; type: string }
+      type: string
+    }) {
       const sourceCode = context.getSourceCode()
-      const comments = sourceCode.getCommentsInside(node.body)
+      if (!node.body.range) {
+        return
+      }
+      const comments = sourceCode.getCommentsInside(node.body as any)
 
       // Filter out ESLint directive comments
-      const relevantComments = comments.filter(comment =>
-        !comment.value.trim().startsWith('eslint') &&
-        !comment.value.trim().startsWith('Empty')
+      const relevantComments = comments.filter(
+        (comment) =>
+          comment.range &&
+          !comment.value.trim().startsWith('eslint') &&
+          !comment.value.trim().startsWith('Empty')
       )
 
       if (relevantComments.length === 0) {
@@ -75,16 +89,19 @@ export default {
 
       // Flag all comments in this excessively commented function
       for (const comment of relevantComments) {
+        if (!comment.range) {
+          continue
+        }
         context.report({
-          node: comment,
+          node: comment as any,
           messageId: 'excessiveComment',
           data: {
             threshold: Math.round(maxDensity * 100),
           },
-          fix: fixer => {
+          fix: (fixer) => {
             const text = sourceCode.getText()
-            const start = comment.range[0]
-            const end = comment.range[1]
+            const start = comment.range![0]
+            const end = comment.range![1]
 
             // Find the start of the line containing the comment
             const textBefore = text.substring(0, start)
@@ -107,10 +124,11 @@ export default {
         })
       }
     }
+
     return {
-      FunctionDeclaration: checkComments,
-      FunctionExpression: checkComments,
-      ArrowFunctionExpression(node) {
+      FunctionDeclaration: checkComments as any,
+      FunctionExpression: checkComments as any,
+      ArrowFunctionExpression(node: any) {
         if (node.body.type === 'BlockStatement') {
           checkComments(node)
         }
@@ -118,3 +136,5 @@ export default {
     }
   },
 }
+
+export default rule

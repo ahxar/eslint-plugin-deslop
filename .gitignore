@@ -17,6 +17,7 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+*.tsbuildinfo
 
 # Test coverage
 coverage/

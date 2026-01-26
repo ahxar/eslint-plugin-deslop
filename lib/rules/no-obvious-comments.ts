@@ -1,9 +1,15 @@
-export default {
+import type { Rule } from 'eslint'
+
+interface Options {
+  customPatterns?: string[]
+  checkVariableNames?: boolean
+}
+
+const rule: Rule.RuleModule = {
   meta: {
     type: 'suggestion',
     docs: {
       description: 'disallow comments that obviously restate what the code does',
-      category: 'Best Practices',
       recommended: false,
     },
     fixable: 'code',
@@ -32,17 +38,22 @@ export default {
   },
   create(context) {
     const sourceCode = context.getSourceCode()
-    const options = context.options[0] || {}
-    const customPatterns = (options.customPatterns || []).map(p => new RegExp(p, 'i'))
+    const options = (context.options[0] || {}) as Options
+    const customPatterns = (options.customPatterns || []).map(
+      (p) => new RegExp(p, 'i')
+    )
     const checkVariableNames = options.checkVariableNames ?? true
 
     /**
      * Checks if a comment is obvious based on heuristics
-     * @param {string} commentText - The comment text
-     * @param {object} node - The AST node after the comment
-     * @returns {boolean} - Whether the comment is obvious
+     * @param commentText - The comment text
+     * @param node - The AST node after the comment
+     * @returns Whether the comment is obvious
      */
-    function isObviousComment(commentText, node) {
+    function isObviousComment(
+      commentText: string,
+      node: any
+    ): boolean {
       const text = commentText.toLowerCase().trim()
 
       // Common AI-generated obvious patterns
@@ -66,37 +77,44 @@ export default {
       }
 
       // Check built-in patterns
-      if (obviousPatterns.some(pattern => pattern.test(text))) {
+      if (obviousPatterns.some((pattern) => pattern.test(text))) {
         return true
       }
 
       // Check custom patterns
-      return customPatterns.some(pattern => pattern.test(text))
+      return customPatterns.some((pattern) => pattern.test(text))
     }
 
     return {
       Program() {
         const comments = sourceCode.getAllComments()
 
-        comments.forEach(comment => {
+        comments.forEach((comment) => {
           // Skip ESLint directives
-          if (comment.value.trim().startsWith('eslint')) {
+          if (!comment.range || comment.value.trim().startsWith('eslint')) {
             return
           }
 
-          const nextToken = sourceCode.getTokenAfter(comment, { includeComments: false })
-          const nextNode = nextToken ? sourceCode.getNodeByRangeIndex(nextToken.range[0]) : null
+          const nextToken = sourceCode.getTokenAfter(comment, {
+            includeComments: false,
+          })
+          const nextNode = nextToken && nextToken.range
+            ? sourceCode.getNodeByRangeIndex(nextToken.range[0])
+            : null
 
           if (isObviousComment(comment.value, nextNode)) {
+            // We already checked comment.range exists above
+            const commentRange = comment.range!
             context.report({
-              node: comment,
+              node: comment as any,
               messageId: 'obviousComment',
-              fix: fixer => {
+              fix: (fixer) => {
                 // Remove comment and the newline after it
-                const start = comment.range[0]
-                const textAfter = sourceCode.text.substring(comment.range[1])
+                const start = commentRange[0]
+                const textAfter = sourceCode.text.substring(commentRange[1])
                 const newlineMatch = textAfter.match(/^(\r\n|\r|\n)/)
-                const end = comment.range[1] + (newlineMatch ? newlineMatch[0].length : 0)
+                const end =
+                  commentRange[1] + (newlineMatch ? newlineMatch[0].length : 0)
 
                 // Also remove leading whitespace on the comment's line
                 const textBefore = sourceCode.text.substring(0, start)
@@ -112,7 +130,9 @@ export default {
             })
           }
         })
-      }
+      },
     }
   },
 }
+
+export default rule
