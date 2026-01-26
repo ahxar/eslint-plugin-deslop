@@ -42,7 +42,7 @@ const rule: Rule.RuleModule = {
       body: { range?: [number, number]; type: string }
       type: string
     }) {
-      const sourceCode = context.getSourceCode()
+      const sourceCode = context.sourceCode
       if (!node.body.range) {
         return
       }

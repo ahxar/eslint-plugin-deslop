@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-deslop",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "ESLint plugin to detect and remove AI-generated code slop",
   "type": "module",
   "main": "./dist/index.js",

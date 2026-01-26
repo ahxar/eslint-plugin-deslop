@@ -37,7 +37,7 @@ const rule: Rule.RuleModule = {
     },
   },
   create(context) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.sourceCode
     const options = (context.options[0] || {}) as Options
     const customPatterns = (options.customPatterns || []).map(
       (p) => new RegExp(p, 'i')
