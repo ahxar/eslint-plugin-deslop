@@ -1,7 +1,15 @@
 import type { Rule, Linter } from 'eslint'
+import { readFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 import noExcessiveComments from './rules/no-excessive-comments.js'
 import noObviousComments from './rules/no-obvious-comments.js'
-import packageJson from '../package.json'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, '../package.json'), 'utf-8')
+)
 
 interface Plugin {
   meta: {
