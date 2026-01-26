@@ -9,14 +9,14 @@ interface Plugin {
   }
   rules: Record<string, Rule.RuleModule>
   configs?: {
-    recommended?: Linter.FlatConfig
+    recommended?: Linter.Config
   }
 }
 
 const plugin: Plugin = {
   meta: {
     name: 'eslint-plugin-deslop',
-    version: '0.2.0',
+    version: '0.2.1',
   },
   rules: {
     'no-excessive-comments': noExcessiveComments,
