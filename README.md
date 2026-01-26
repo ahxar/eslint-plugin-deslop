@@ -48,10 +48,17 @@ export default [
 Or use the recommended config:
 
 ```js
+// eslint.config.js (Flat Config)
 import deslop from "eslint-plugin-deslop";
 
-export default [deslop.configs.recommended];
+export default [
+  ...deslop.configs.recommended,
+];
 ```
+
+The recommended config enables both rules with sensible defaults:
+- `deslop/no-excessive-comments`: `warn` (30% max density)
+- `deslop/no-obvious-comments`: `warn`
 
 ## Rules
 

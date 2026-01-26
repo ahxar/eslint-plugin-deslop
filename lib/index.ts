@@ -1,6 +1,7 @@
 import type { Rule, Linter } from 'eslint'
 import noExcessiveComments from './rules/no-excessive-comments.js'
 import noObviousComments from './rules/no-obvious-comments.js'
+import packageJson from '../package.json'
 
 interface Plugin {
   meta: {
@@ -15,8 +16,8 @@ interface Plugin {
 
 const plugin: Plugin = {
   meta: {
-    name: 'eslint-plugin-deslop',
-    version: '0.3.0',
+    name: packageJson.name,
+    version: packageJson.version,
   },
   rules: {
     'no-excessive-comments': noExcessiveComments,
