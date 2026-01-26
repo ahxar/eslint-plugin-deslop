@@ -45,7 +45,6 @@ ruleTester.run('no-excessive-comments', rule, {
         }
       `,
     },
-    // Low comment density (<=40%) - should NOT be flagged
     {
       code: `
         function calculateTotal() {
@@ -54,6 +53,7 @@ ruleTester.run('no-excessive-comments', rule, {
           return total
         }
       `,
+      options: [{ maxDensity: 0.4 }],
     },
     {
       code: `
@@ -65,7 +65,6 @@ ruleTester.run('no-excessive-comments', rule, {
         }
       `,
     },
-    // Test with custom maxDensity option - higher threshold allows more comments
     {
       code: `
         function processUser(user) {
@@ -80,7 +79,6 @@ ruleTester.run('no-excessive-comments', rule, {
   ],
 
   invalid: [
-    // High comment density (>40%) - should be flagged
     {
       code: `
         function processUser(user) {
@@ -177,7 +175,6 @@ ruleTester.run('no-excessive-comments', rule, {
         }
       `,
     },
-    // Test with custom maxDensity option - lower threshold flags more comments
     {
       code: `
         function example() {
@@ -205,5 +202,3 @@ ruleTester.run('no-excessive-comments', rule, {
     },
   ],
 })
-
-console.log('All no-excessive-comments tests passed!')

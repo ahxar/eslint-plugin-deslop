@@ -20,7 +20,7 @@ const rule: Rule.RuleModule = {
             type: 'number',
             minimum: 0,
             maximum: 1,
-            default: 0.4,
+            default: 0.3,
           },
         },
         additionalProperties: false,
@@ -32,7 +32,7 @@ const rule: Rule.RuleModule = {
   },
   create(context) {
     const options = (context.options[0] || {}) as Options
-    const maxDensity = options.maxDensity ?? 0.4
+    const maxDensity = options.maxDensity ?? 0.3
 
     /**
      * Checks if comment density in the function is excessive.
@@ -48,7 +48,6 @@ const rule: Rule.RuleModule = {
       }
       const comments = sourceCode.getCommentsInside(node.body as any)
 
-      // Filter out ESLint directive comments
       const relevantComments = comments.filter(
         (comment) =>
           comment.range &&
@@ -60,14 +59,11 @@ const rule: Rule.RuleModule = {
         return
       }
 
-      // Calculate comment density by counting comment lines vs total lines in function body
-      // Count non-empty, non-brace lines by analyzing actual code
       const bodyStart = node.body.range[0]
       const bodyEnd = node.body.range[1]
       const bodyText = sourceCode.text.substring(bodyStart, bodyEnd)
       const allLines = bodyText.split('\n')
 
-      // Count actual code lines (excluding opening/closing braces and empty lines)
       let codeLines = 0
       for (const line of allLines) {
         const trimmed = line.trim()
@@ -76,10 +72,7 @@ const rule: Rule.RuleModule = {
         }
       }
 
-      // Count comment lines
       const commentLines = relevantComments.length
-
-      // Check if comment density exceeds the threshold
       const totalLines = codeLines
       const density = totalLines > 0 ? commentLines / totalLines : 0
 
@@ -87,7 +80,6 @@ const rule: Rule.RuleModule = {
         return
       }
 
-      // Flag all comments in this excessively commented function
       for (const comment of relevantComments) {
         if (!comment.range) {
           continue
@@ -103,14 +95,11 @@ const rule: Rule.RuleModule = {
             const start = comment.range![0]
             const end = comment.range![1]
 
-            // Find the start of the line containing the comment
             const textBefore = text.substring(0, start)
             const lineStart = textBefore.lastIndexOf('\n') + 1
             const leadingWhitespace = textBefore.substring(lineStart, start)
 
-            // Check if comment is on its own line (only whitespace before it)
             if (leadingWhitespace.trim() === '') {
-              // Find the end of the line (including newline)
               const textAfter = text.substring(end)
               const newlineAfter = textAfter.indexOf('\n')
               const lineEnd = newlineAfter !== -1 ? end + newlineAfter + 1 : end
@@ -118,7 +107,6 @@ const rule: Rule.RuleModule = {
               return fixer.removeRange([lineStart, lineEnd])
             }
 
-            // Comment is inline, just remove the comment itself
             return fixer.removeRange([start, end])
           },
         })

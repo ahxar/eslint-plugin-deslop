@@ -16,7 +16,7 @@ interface Plugin {
 const plugin: Plugin = {
   meta: {
     name: 'eslint-plugin-deslop',
-    version: '0.2.2',
+    version: '0.3.0',
   },
   rules: {
     'no-excessive-comments': noExcessiveComments,

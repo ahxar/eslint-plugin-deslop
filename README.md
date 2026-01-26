@@ -57,7 +57,7 @@ export default [deslop.configs.recommended];
 
 ### ✅ `no-excessive-comments`
 
-Detects and removes excessive comment density inside function bodies (>40% by default).
+Detects and removes excessive comment density inside function bodies (>30% by default).
 
 **Fixable**: Yes (with `--fix`)
 
@@ -82,21 +82,21 @@ function processUser(user) {
 ```js
 {
   "deslop/no-excessive-comments": ["warn", {
-    "maxDensity": 0.4  // Default: 0.4 (40%)
+    "maxDensity": 0.3  // Default: 0.3 (30%)
   }]
 }
 ```
 
-- `maxDensity` (number, 0-1): Maximum allowed comment-to-code ratio. Default is `0.4` (40%).
+- `maxDensity` (number, 0-1): Maximum allowed comment-to-code ratio. Default is `0.3` (30%).
 
 **Examples:**
 
 ```js
-// Set to 30% for stricter checking
-"deslop/no-excessive-comments": ["warn", { "maxDensity": 0.3 }]
+// Set to 20% for stricter checking
+"deslop/no-excessive-comments": ["warn", { "maxDensity": 0.2 }]
 
-// Set to 60% for more lenient checking
-"deslop/no-excessive-comments": ["warn", { "maxDensity": 0.6 }]
+// Set to 50% for more lenient checking
+"deslop/no-excessive-comments": ["warn", { "maxDensity": 0.5 }]
 ```
 
 ### ✅ `no-obvious-comments`
@@ -112,6 +112,13 @@ let counter = 0;
 
 // Returns the user name
 function getUserName() {}
+
+/**
+ * Gets the user name
+ * @param user - The user object
+ * @returns The user name
+ */
+function getUserName(user) {}
 
 // ✅ Good (no obvious comments)
 let counter = 0;
@@ -150,10 +157,16 @@ function getUserName() {}
 ```
 
 **Built-in patterns detected:**
-- `initialize`, `create`, `set`, `get`, `return`, `check`, `validate`, `update`, `delete`
-- `this function`, `this method`, `this will`
-- `constructor for`, `getter for`, `setter for`
-- `returns the/a/an`, `checks if`, `sets the`, `gets the`
+- Basic actions: `initialize`, `create`, `set`, `get`, `return`, `check`, `validate`, `update`, `delete`
+- Function descriptions: `this function`, `this method`, `this will`
+- Accessors: `constructor for`, `getter for`, `setter for`
+- Verb phrases: `returns the/a/an`, `checks if`, `sets the`, `gets the`
+- Explanatory filler: `note that`, `it's important to`, `please note`, `the following code`, `this is a helper function to`, `we use this to`
+- Step markers: `step 1`, `first,`, `then,`, `finally,`, `1. do something`
+- Loop/iteration: `loop through`, `iterate over`, `for each element`
+- Conditionals: `if condition is met`, `check condition`, `handle error`, `catch exception`
+- JSDoc/TSDoc slop: Trivial doc comments like `/** Gets the user name */`
+- Redundant block comments: Short block comments that restate code
 
 ## License
 

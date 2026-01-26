@@ -48,15 +48,26 @@ const rule: Rule.RuleModule = {
      * Checks if a comment is obvious based on heuristics
      * @param commentText - The comment text
      * @param node - The AST node after the comment
+     * @param comment - The comment AST node
      * @returns Whether the comment is obvious
      */
     function isObviousComment(
       commentText: string,
-      node: any
+      node: any,
+      comment: any
     ): boolean {
       const text = commentText.toLowerCase().trim()
+      const isJSDoc =
+        comment.type === 'Block' &&
+        (() => {
+          if (!comment.range) return false
+          const rawText = sourceCode.text
+            .substring(comment.range[0], Math.min(comment.range[0] + 3, comment.range[1]))
+          if (rawText === '/**') return true
+          const lines = commentText.split('\n')
+          return lines.some((line) => line.trim().startsWith('*'))
+        })()
 
-      // Common AI-generated obvious patterns
       const obviousPatterns = [
         /^(initialize|create|set|get|return|check|validate|update|delete)\s/,
         /^(this function|this method|this will)/,
@@ -65,23 +76,91 @@ const rule: Rule.RuleModule = {
         /^(checks?\s+if)/,
         /^(sets?\s+the)/,
         /^(gets?\s+the)/,
+        /^(note\s+that|it'?s\s+important\s+to|please\s+note)/,
+        /^(the\s+following\s+code|this\s+is\s+a\s+helper\s+function\s+to)/,
+        /^(we\s+use\s+this\s+to|this\s+will)/,
+        /^(step\s+\d+|first,|then,|finally,|next,)/,
+        /^\d+\.\s+(do|perform|execute|run|call)/,
+        /^(loop\s+through|iterate\s+over|for\s+each\s+element)/,
+        /^(iterate|iterating)\s+(over|through)/,
+        /^(if\s+condition\s+is\s+met|check\s+condition)/,
+        /^(handle\s+error|catch\s+exception)/,
+        /^(handle|handling)\s+(the\s+)?(error|exception)/,
       ]
 
-      // Check for variable declarations with obvious comments
+      if (isJSDoc) {
+        const jsdocContent = commentText
+          .split('\n')
+          .map((line) => line.replace(/^\s*\*\s*/, '').trim())
+          .filter((line) => !line.startsWith('@') && line.length > 0)
+          .join(' ')
+          .toLowerCase()
+          .trim()
+
+        const firstLine = commentText
+          .split('\n')
+          .map((line) => line.replace(/^\s*\*\s*/, '').trim())
+          .find((line) => line.length > 0 && !line.startsWith('@'))
+        const firstLineLower = firstLine ? firstLine.toLowerCase() : ''
+
+        const jsdocPatterns = [
+          /^gets?\s+(the\s+)?/i,
+          /^returns?\s+(the\s+)?/i,
+          /^calculates?\s+(the\s+)?/i,
+          /^(the\s+)?(user|object|value|data|result|item|element)(\s+object|\s+value)?$/i,
+        ]
+
+        if (jsdocContent.length < 50 && jsdocContent.length > 0) {
+          if (firstLineLower && jsdocPatterns.some((pattern) => pattern.test(firstLineLower))) {
+            return true
+          }
+          
+          if (jsdocPatterns.some((pattern) => pattern.test(jsdocContent))) {
+            return true
+          }
+          
+          if (firstLineLower && obviousPatterns.some((pattern) => pattern.test(firstLineLower))) {
+            return true
+          }
+        }
+
+        if (node && (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression')) {
+          const funcName = node.id?.name || ''
+          if (funcName && jsdocContent.includes(funcName.toLowerCase())) {
+            const restatementPattern = new RegExp(
+              `^(gets?|returns?|calculates?|processes?)\\s+${funcName.toLowerCase()}`,
+              'i'
+            )
+            if (restatementPattern.test(jsdocContent) || restatementPattern.test(firstLineLower)) {
+              return true
+            }
+          }
+        }
+      }
+
+      if (comment.type === 'Block' && !isJSDoc) {
+        if (text.length < 60) {
+          const redundantPatterns = [
+            /^(this\s+function|this\s+method|this\s+code)/,
+            /^(processes?|handles?|manages?)\s+(the\s+)?(user|data|value)/,
+          ]
+          if (redundantPatterns.some((pattern) => pattern.test(text))) {
+            return true
+          }
+        }
+      }
+
       if (checkVariableNames && node && node.type === 'VariableDeclaration') {
         const varName = node.declarations[0]?.id?.name || ''
-        // "Initialize counter" above "let counter = 0"
         if (text.includes(varName.toLowerCase())) {
           return true
         }
       }
 
-      // Check built-in patterns
       if (obviousPatterns.some((pattern) => pattern.test(text))) {
         return true
       }
 
-      // Check custom patterns
       return customPatterns.some((pattern) => pattern.test(text))
     }
 
@@ -90,7 +169,6 @@ const rule: Rule.RuleModule = {
         const comments = sourceCode.getAllComments()
 
         comments.forEach((comment) => {
-          // Skip ESLint directives
           if (!comment.range || comment.value.trim().startsWith('eslint')) {
             return
           }
@@ -102,21 +180,18 @@ const rule: Rule.RuleModule = {
             ? sourceCode.getNodeByRangeIndex(nextToken.range[0])
             : null
 
-          if (isObviousComment(comment.value, nextNode)) {
-            // We already checked comment.range exists above
+          if (isObviousComment(comment.value, nextNode, comment)) {
             const commentRange = comment.range!
             context.report({
               node: comment as any,
               messageId: 'obviousComment',
               fix: (fixer) => {
-                // Remove comment and the newline after it
                 const start = commentRange[0]
                 const textAfter = sourceCode.text.substring(commentRange[1])
                 const newlineMatch = textAfter.match(/^(\r\n|\r|\n)/)
                 const end =
                   commentRange[1] + (newlineMatch ? newlineMatch[0].length : 0)
 
-                // Also remove leading whitespace on the comment's line
                 const textBefore = sourceCode.text.substring(0, start)
                 const lineStart = textBefore.lastIndexOf('\n') + 1
                 const leadingWhitespace = textBefore.substring(lineStart, start)
