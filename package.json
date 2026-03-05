@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-deslop",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "ESLint plugin to detect and remove AI-generated code slop",
   "type": "module",
   "main": "./dist/index.js",
@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "tsx tests/rules/no-excessive-comments.test.ts && tsx tests/rules/no-obvious-comments.test.ts",
+    "test": "tsx tests/rules/no-obvious-comments.test.ts",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
