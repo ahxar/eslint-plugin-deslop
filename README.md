@@ -1,6 +1,6 @@
 # eslint-plugin-deslop
 
-ESLint plugin to remove obvious comments inside function bodies.
+ESLint plugin to remove AI slop comments, especially obvious comments that restate code inside function bodies.
 
 ## Installation
 
@@ -39,7 +39,7 @@ export default [deslop.configs.recommended]
 
 ### `no-obvious-comments`
 
-Flags obvious comments that restate code inside function bodies and removes them with `--fix`.
+Flags AI slop comments that restate what code already says and removes them with `--fix`.
 
 ```js
 // ❌ flagged

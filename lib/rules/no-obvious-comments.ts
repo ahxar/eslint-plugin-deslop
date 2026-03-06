@@ -37,7 +37,10 @@ const rule: Rule.RuleModule = {
 
       if (node?.type === 'VariableDeclaration') {
         const variable = node.declarations[0]?.id
-        if (variable?.type === 'Identifier' && text.includes(variable.name.toLowerCase())) {
+        if (
+          variable?.type === 'Identifier' &&
+          text.includes(variable.name.toLowerCase())
+        ) {
           return true
         }
       }
@@ -67,9 +70,10 @@ const rule: Rule.RuleModule = {
         const nextToken = sourceCode.getTokenAfter(comment, {
           includeComments: false,
         })
-        const nextNode = nextToken && nextToken.range
-          ? sourceCode.getNodeByRangeIndex(nextToken.range[0])
-          : null
+        const nextNode =
+          nextToken && nextToken.range
+            ? sourceCode.getNodeByRangeIndex(nextToken.range[0])
+            : null
 
         if (!isObviousComment(comment.value, nextNode)) {
           return
@@ -83,7 +87,8 @@ const rule: Rule.RuleModule = {
             const start = commentRange[0]
             const textAfter = sourceCode.text.substring(commentRange[1])
             const newlineMatch = textAfter.match(/^(\r\n|\r|\n)/)
-            const end = commentRange[1] + (newlineMatch ? newlineMatch[0].length : 0)
+            const end =
+              commentRange[1] + (newlineMatch ? newlineMatch[0].length : 0)
 
             const textBefore = sourceCode.text.substring(0, start)
             const lineStart = textBefore.lastIndexOf('\n') + 1
