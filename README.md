@@ -56,6 +56,22 @@ function getUserName(user) {
 }
 ```
 
+JSDoc, TSDoc, and context-adding comments are of course completely ignored and safe:
+
+```ts
+// ✅ clean
+/**
+ * Gets the user's name from their profile
+ * @param user - The user object
+ * @returns User's full name
+ */
+function getUserName(user: User) {
+  // Preserve legacy keys for backwards compatibility
+  const name = user.name
+  return name
+}
+```
+
 ## License
 
 MIT
