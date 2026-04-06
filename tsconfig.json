@@ -14,7 +14,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
   },
   "include": ["lib/**/*"],
   "exclude": ["node_modules", "dist"]
